@@ -1,0 +1,64 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: apingester
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  region: ap-southeast-2
+  stackName: apiingester
+  iam:
+    role: !Sub arn:aws:iam::${AWS::AccountId}:role/Sample-Ingester-Managed-Role
+
+
+functions:
+  sample_card_ingest:
+    handler: handler.sample_ingester
+    events:
+      - schedule:
+          name: 'sample_card_ingest-rate-event-name'
+          description: 'Sample scheduled rate event description'
+          rate: rate(1440 minutes)
+
+#    Define function environment variables here
+    environment:
+      API_URI: https://randommer.io/api/Card
+      API_KEY_NAME: MY_API_KEY
+      BUCKET_NAME: sample-api-ingester-target
+      PREFIX: /data/CARD/
+      SUFFIX: .json
+      PARAMS: '{"type": "visa"}'
+
+  sample_culture_ingest:
+    handler: handler.sample_ingester
+    events:
+      - schedule:
+          name: 'sample_culture_ingest-rate-event-name'
+          rate: rate(1440 minutes)
+
+#    Define function environment variables here
+    environment:
+      API_URI: https://randommer.io/api/Misc/Cultures
+      API_KEY_NAME: MY_API_KEY
+      BUCKET_NAME: sample-api-ingester-target
+      PREFIX: /data/Misc/Cultures/
+      SUFFIX: .json
